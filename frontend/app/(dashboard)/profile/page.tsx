@@ -12,7 +12,7 @@ export default function ProfilePage() {
     <div className="max-w-4xl mx-auto space-y-8 pb-12">
       <div>
         <h1 className="text-3xl font-bold text-white">Profile & Preferences</h1>
-        <p className="text-neutral-400">Manage your contact information and account settings.</p>
+        <p className="text-neutral-400 font-semibold">Manage your contact information and account settings.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -55,7 +55,7 @@ export default function ProfilePage() {
           <Card>
             <CardHeader>
               <CardTitle>Contact Information</CardTitle>
-              <CardDescription>We use these to send your price alerts.</CardDescription>
+              <CardDescription className="font-semibold">We use these to send your price alerts.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4">

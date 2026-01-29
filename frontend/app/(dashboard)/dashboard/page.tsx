@@ -13,8 +13,8 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-foreground">Dashboard Overview</h1>
-        <p className="text-muted-foreground">Monitor your active crypto alerts and recent activity.</p>
+        <h1 className="text-3xl font-bold text-foreground"><em>Dashboard Overview</em></h1>
+        <p className="text-muted-foreground font-semibold">Monitor your active crypto alerts and recent activity.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -58,7 +58,7 @@ export default function DashboardPage() {
                       <div className="text-xs text-muted-foreground">{alert.condition} {alert.price}</div>
                     </div>
                   </div>
-                  <div className="text-xs text-muted-foreground">{alert.time}</div>
+                  <div className="text-xs text-muted-foreground font-semibold">{alert.time}</div>
                 </div>
               ))}
             </div>

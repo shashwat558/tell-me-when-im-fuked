@@ -45,7 +45,7 @@ export default function DashboardLayout({
         <Sidebar>
           <SidebarContent>
             <div className="p-6">
-              <h1 className="text-xl font-bold tracking-tight text-primary uppercase">Coss Crypto</h1>
+              <h1 className="text-xl font-bold tracking-tight text-primary uppercase">TMW<span className="text-gray-500">IF</span></h1>
             </div>
             <SidebarGroup>
               <SidebarGroupContent>
@@ -56,7 +56,7 @@ export default function DashboardLayout({
                         isActive={pathname === item.href}
                         tooltip={item.title}
                         render={
-                          <Link href={item.href}>
+                          <Link className="font-bold text-gray-300" href={item.href}>
                             {item.icon}
                             <span>{item.title}</span>
                           </Link>

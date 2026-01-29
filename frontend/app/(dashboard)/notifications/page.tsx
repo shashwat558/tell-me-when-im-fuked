@@ -24,7 +24,7 @@ export default function NotificationsPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold text-foreground">Notification History</h1>
-        <p className="text-muted-foreground">View all alerts that have been triggered in the past 30 days.</p>
+        <p className="text-muted-foreground font-semibold">View all alerts that have been triggered in the past 30 days.</p>
       </div>
 
       <Card>

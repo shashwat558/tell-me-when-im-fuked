@@ -5,7 +5,7 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { BackgroundRippleEffect } from "@/components/ui/background-ripple-effect"
 import Link from "next/link"
 import { TrendingUp, Bell, Zap, Shield, Globe, Smartphone } from "lucide-react"
-import { RainbowButton } from "@/components/magicui/rainbow-button"
+
 
 export default function LandingPage() {
   return (
@@ -15,7 +15,7 @@ export default function LandingPage() {
           <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
             <div className="w-4 h-4 rounded-sm bg-primary-foreground rotate-45" />
           </div>
-          Alert.Fi
+          TMW<span className="text-gray-500">IF</span>
         </div>
         <div className="flex items-center gap-4">
           <ThemeToggle />
@@ -41,7 +41,7 @@ export default function LandingPage() {
             </span>
           </h1>
           
-          <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto mb-12 leading-relaxed">
+          <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto mb-12 leading-relaxed font-semibold">
             Stop checking charts. We'll ping you the second your target price hits. 
             Reliable, fast, and multi-channel notifications.
           </p>
@@ -49,13 +49,13 @@ export default function LandingPage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20">
             <Link href="/auth" className="w-full sm:w-auto">
             
-              <Button size="xl" className="w-full sm:w-auto px-10 ">
+              <Button size="xl" className="w-full sm:w-auto px-10 font-semibold">
               
                 Start Monitoring Free
               
               </Button>
             </Link>
-            <Button variant="outline" size="xl" className="w-full sm:w-auto px-10">
+            <Button variant="outline" size="xl" className="w-full sm:w-auto px-10 font-semibold">
               How it works
             </Button>
           </div>
@@ -75,7 +75,7 @@ export default function LandingPage() {
         <Layout.Content className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-20">
             <h2 className="text-3xl md:text-5xl font-bold mb-4 tracking-tight">Everything you need to trade better</h2>
-            <p className="text-muted-foreground text-lg">Powerful features for serious crypto traders and enthusiasts.</p>
+            <p className="text-muted-foreground text-lg font-semibold">Powerful features for serious crypto traders and enthusiasts.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -97,11 +97,9 @@ export default function LandingPage() {
               }
             ].map((feature, i) => (
               <Card key={i} className="group p-10 hover:shadow-2xl hover:shadow-primary/5 transition-all duration-500 border-border/50 bg-background/50 backdrop-blur-sm">
-                <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  {feature.icon}
-                </div>
+                
                 <h3 className="text-xl font-bold mb-3 tracking-tight">{feature.title}</h3>
-                <p className="text-muted-foreground leading-relaxed">{feature.desc}</p>
+                <p className="text-muted-foreground leading-relaxed font-semibold">{feature.desc}</p>
               </Card>
             ))}
           </div>

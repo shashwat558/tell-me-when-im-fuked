@@ -2,12 +2,61 @@
 
 import * as React from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
-
+import { useState } from "react"
+import { toastManager } from "@/components/ui/toast";
+import { Spinner } from "@/components/ui/spinner";
 export default function AuthPage() {
-  const [mode, setMode] = React.useState<'login' | 'signup'>('login')
+  const [email, setEmail] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+
+  const handleSendMagicLink = async () => {
+    if (!email) {
+      toastManager.add({
+        title: 'Email required',
+        description: 'Please enter your email address.',
+        type: 'error',
+      })
+      return
+    }
+
+    setIsLoading(true)
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      })
+
+      if (response.ok) {
+        toastManager.add({
+          title: 'Magic link sent!',
+          description: 'Check your email for the login link.',
+          type: 'success',
+        })
+      } else {
+        toastManager.add({
+          title: 'Failed to send login link',
+          description: 'Please try again.',
+          type: 'error',
+        })
+      }
+    }
+    catch (error) {
+      console.error('An unexpected error occurred:', error);
+      toastManager.add({
+        title: 'Error',
+        description: 'An unexpected error occurred. Please try again later.',
+        type: 'error',
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
@@ -21,31 +70,26 @@ export default function AuthPage() {
       <Card className="w-full max-w-md border-border bg-card">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">
-            {mode === 'login' ? 'Welcome back' : 'Create an account'}
+            Welcome to Alert.Fi
           </CardTitle>
           <CardDescription>
-            {mode === 'login' 
-              ? 'Enter your credentials to access your account' 
-              : 'Join Alert.Fi to start monitoring crypto prices'}
+            Enter your email to receive a magic login link
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <label className="text-sm font-medium text-muted-foreground">Email address</label>
-            <Input type="email" placeholder="name@example.com" />
+            <Input type="email" placeholder="name@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
           </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-muted-foreground">Password</label>
-            <Input type="password" placeholder="••••••••" />
-          </div>
-          {mode === 'signup' && (
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-muted-foreground">Confirm Password</label>
-              <Input type="password" placeholder="••••••••" />
-            </div>
-          )}
-          <Button variant="default" className="w-full" size="lg" onClick={() => window.location.href = '/dashboard'}>
-            {mode === 'login' ? 'Sign In' : 'Sign Up'}
+          <Button variant="default" className="w-full" size="lg" onClick={handleSendMagicLink} disabled={isLoading}>
+            {isLoading ? (
+              <>
+                <Spinner className="mr-2 h-4 w-4" />
+                Sending...
+              </>
+            ) : (
+              'Send Magic Link'
+            )}
           </Button>
           
           <div className="relative my-4">
@@ -79,16 +123,6 @@ export default function AuthPage() {
             Google
           </Button>
         </CardContent>
-        <CardFooter className="flex flex-col gap-4 border-t border-border pt-6">
-          <button 
-            onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-          >
-            {mode === 'login' 
-              ? "Don't have an account? Sign up" 
-              : "Already have an account? Sign in"}
-          </button>
-        </CardFooter>
       </Card>
     </div>
   )
