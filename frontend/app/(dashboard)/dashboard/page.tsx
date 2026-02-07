@@ -8,6 +8,7 @@ import { useSessionStore } from "@/store/session"
 
 export default function DashboardPage() {
   const { user } = useSessionStore()
+  console.log("Session user:", user) // Debugging line to check session state
 
   const stats = [
     { title: "Active Alerts", value: "12", icon: <Bell className="text-emerald-500" />, change: "+2 this week", trend: "up" },

@@ -34,11 +34,11 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname()
   const router = useRouter()
+  const { user, loading, hydrate, clearSession } = useSessionStore()
 
   useEffect(() => {
     const linkedKey = "telegram_linked"
     const toastShownKey = "telegram_link_prompt_shown"
-    const {hydrate} = useSessionStore.getState()
 
     const isLinked = window.localStorage.getItem(linkedKey) === "true"
     const alreadyShown = window.localStorage.getItem(toastShownKey) === "true"
@@ -66,14 +66,14 @@ export default function DashboardLayout({
   ]
 
   useEffect(() => {
-    const { user, loading, hydrate } = useSessionStore.getState()
+    hydrate()
+  }, [hydrate])
 
+  useEffect(() => {
     if (!loading && !user) {
       router.push("/auth")
-    } else if (loading) {
-      hydrate()
     }
-  }, [router])
+  }, [loading, user, router])
 
   return (
     <SidebarProvider>
@@ -110,6 +110,7 @@ export default function DashboardLayout({
               <button
                 className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                 onClick={() => {
+                  clearSession()
                   router.push("/auth")
                 }}
               >

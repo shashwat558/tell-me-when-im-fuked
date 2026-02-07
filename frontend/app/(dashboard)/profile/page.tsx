@@ -1,13 +1,36 @@
 "use client"
 
 import * as React from "react"
+import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { User, Shield, Bell, Phone, Mail, Navigation } from "lucide-react"
+import { useSessionStore } from "@/store/session"
+import { cn } from "@/lib/utils"
+import jwt from "jsonwebtoken";
+import { toastManager } from "@/components/ui/toast"
 
 export default function ProfilePage() {
+  const {user} = useSessionStore();
+  const [telegramUrl, setTelegramUrl] = useState("");
+  const handleTelegramConnect = () => {
+    const userId = user?.id;
+    const token = jwt.sign({ userId}, process.env.TELEGRAM_AUTH_SECRET!);
+    const url = `https://t.me/tellmewhenimfuckedbot?start=auth_${token}`;
+    setTelegramUrl(url)
+
+    toastManager.add({
+      title: "Telegram link ready",
+      description: `Open this link to connect: ${url}`,
+      type: "success",
+    })
+    
+
+
+     
+  }
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-12">
       <div>
@@ -84,8 +107,8 @@ export default function ProfilePage() {
                     <Navigation size={14} /> Telegram Username
                   </label>
                   <div className="flex gap-2">
-                    <Input placeholder="@yourusername" />
-                    <Button variant="default" size="sm">Connect</Button>
+                    
+                    <Button variant="default" onClick={handleTelegramConnect} size="sm">Connect</Button>
                   </div>
                 </div>
               </div>
@@ -124,4 +147,3 @@ export default function ProfilePage() {
   )
 }
 
-import { cn } from "@/lib/utils"
