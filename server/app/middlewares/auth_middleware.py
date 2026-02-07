@@ -11,10 +11,9 @@ def get_current_user(authorization:str = Header(None)):
         if scheme.lower() != "bearer":
             raise HTTPException(status_code=401, detail="Invalid auth scheme")
         payload = jwt.decode(
-            token=token,
-            access_token=jwt_secret,
+            token,
+            jwt_secret,
             algorithms=[jwt_algorithm]
-            
         )
         
         user_id = payload.get("id")
