@@ -7,6 +7,7 @@ export async function GET(req: NextRequest) {
     const token = searchParams.get("token");
 
     if (!token) {
+        console.error("[auth] callback missing token");
         return NextResponse.redirect(new URL("/auth?error=missing_token", req.url));
     }
 
@@ -14,11 +15,12 @@ export async function GET(req: NextRequest) {
     const cookiesStore = await cookies();
 
     if(!session){
+        console.error("[auth] callback invalid token", { tokenPrefix: token.slice(0, 10) });
         return NextResponse.redirect(new URL("/auth?error=invalid_token", req.url));
     }
     
     
-    cookiesStore.set("session", session.token, {
+    cookiesStore.set("tmwif-session", session.token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         maxAge: 7 * 24 * 60 * 60,

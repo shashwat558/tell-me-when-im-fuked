@@ -12,7 +12,7 @@ export async function sendEmail(email: string, message: string, token: string) {
     const link = `http://localhost:3000/api/auth/callback?token=${token}`;
 
     const info = await transporter.sendMail({
-        from: `Differ trading app ${process.env.SMTP_EMAIL}`,
+        from: `AlertFi <${process.env.SMTP_EMAIL}>`,
         to: email,
         subject: message,
         html: `

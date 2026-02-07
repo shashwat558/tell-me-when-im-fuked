@@ -21,8 +21,11 @@ import {
   LogOut
 } from "lucide-react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { toastManager } from "@/components/ui/toast"
+import { useEffect } from "react"
+import { useSessionStore } from "@/store/session"
 
 export default function DashboardLayout({
   children,
@@ -30,6 +33,29 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
+  const router = useRouter()
+
+  useEffect(() => {
+    const linkedKey = "telegram_linked"
+    const toastShownKey = "telegram_link_prompt_shown"
+    const {hydrate} = useSessionStore.getState()
+
+    const isLinked = window.localStorage.getItem(linkedKey) === "true"
+    const alreadyShown = window.localStorage.getItem(toastShownKey) === "true"
+
+    if (!isLinked && !alreadyShown) {
+      // Add a small delay to ensure toast provider is mounted
+      setTimeout(() => {
+        toastManager.add({
+          title: "Link your Telegram",
+          description: "Connect Telegram to get instant alerts there.",
+          type: "info",
+        })
+      }, 300)
+
+      window.localStorage.setItem(toastShownKey, "true")
+    }
+  }, [])
   
   const sidebarItems = [
     { title: "Dashboard", href: "/dashboard", icon: <LayoutDashboard className="size-4" /> },
@@ -38,6 +64,16 @@ export default function DashboardLayout({
     { title: "Notifications", href: "/notifications", icon: <History className="size-4" /> },
     { title: "Profile", href: "/profile", icon: <User className="size-4" /> },
   ]
+
+  useEffect(() => {
+    const { user, loading, hydrate } = useSessionStore.getState()
+
+    if (!loading && !user) {
+      router.push("/auth")
+    } else if (loading) {
+      hydrate()
+    }
+  }, [router])
 
   return (
     <SidebarProvider>
@@ -71,7 +107,12 @@ export default function DashboardLayout({
           <SidebarFooter className="p-4 border-t border-border">
             <div className="flex items-center justify-between gap-4">
               <ThemeToggle />
-              <button className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
+              <button
+                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                onClick={() => {
+                  router.push("/auth")
+                }}
+              >
                 <LogOut className="size-4" />
                 <span>Logout</span>
               </button>

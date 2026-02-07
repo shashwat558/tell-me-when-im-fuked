@@ -23,7 +23,12 @@ export async function verifyMagicLink(token: string) {
 
 
         const email = await redis.get(`magic:${token}`);
-        if(!email) return null;
+        if(!email) {
+            console.error("[auth] magic link lookup failed: token not found in redis", {
+                tokenPrefix: token.slice(0, 10),
+            });
+            return null;
+        }
 
         let user = await db.user.findUnique({
             where: {
@@ -40,10 +45,14 @@ export async function verifyMagicLink(token: string) {
             })
         }
 
-        const session = jwt.sign({id: user.id, email: user.email}, MAGIC_SECRET, {expiresIn: "7d"});
+        const session = jwt.sign({id: user.id, userId: user.id, email: user.email}, MAGIC_SECRET, {algorithm: "HS256", expiresIn: "7d"});
 
         return {token: session, user}
     } catch (error) {
+        console.error("[auth] magic link verification failed", {
+            tokenPrefix: token.slice(0, 10),
+            error,
+        });
         return null
     }
 }

@@ -1,9 +1,14 @@
+"use client"
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { TrendingUp, Bell, ShieldCheck } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useSessionStore } from "@/store/session"
 
 export default function DashboardPage() {
+  const { user } = useSessionStore()
+
   const stats = [
     { title: "Active Alerts", value: "12", icon: <Bell className="text-emerald-500" />, change: "+2 this week", trend: "up" },
     { title: "Triggered Today", value: "05", icon: <TrendingUp className="text-blue-500" />, change: "-12% vs yesterday", trend: "down" },
@@ -14,7 +19,10 @@ export default function DashboardPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold text-foreground"><em>Dashboard Overview</em></h1>
-        <p className="text-muted-foreground font-semibold">Monitor your active crypto alerts and recent activity.</p>
+        <p className="text-muted-foreground font-semibold">
+          {user?.email ? `Welcome back, ${user.email}. ` : "Welcome back. "}
+          Monitor your active crypto alerts and recent activity.
+        </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
