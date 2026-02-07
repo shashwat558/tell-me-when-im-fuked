@@ -32,7 +32,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <ToastProvider>
+          <ToastProvider position="top-center">
             {children}
           </ToastProvider>
         </ThemeProvider>

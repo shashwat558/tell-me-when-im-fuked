@@ -9,27 +9,70 @@ import { Badge } from "@/components/ui/badge"
 import { User, Shield, Bell, Phone, Mail, Navigation } from "lucide-react"
 import { useSessionStore } from "@/store/session"
 import { cn } from "@/lib/utils"
-import jwt from "jsonwebtoken";
 import { toastManager } from "@/components/ui/toast"
 
 export default function ProfilePage() {
   const {user} = useSessionStore();
   const [telegramUrl, setTelegramUrl] = useState("");
-  const handleTelegramConnect = () => {
+  const handleTelegramConnect = async () => {
     const userId = user?.id;
-    const token = jwt.sign({ userId}, process.env.TELEGRAM_AUTH_SECRET!);
-    const url = `https://t.me/tellmewhenimfuckedbot?start=auth_${token}`;
+    if (!userId) {
+      toastManager.add({
+        title: "Missing user",
+        description: "Please sign in again.",
+        type: "error",
+      })
+      return
+    }
+
+    const res = await fetch("/api/telegram/link", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId }),
+    })
+
+    if (!res.ok) {
+      toastManager.add({
+        title: "Telegram link failed",
+        description: "Could not create auth link.",
+        type: "error",
+      })
+      return
+    }
+
+    const data = await res.json()
+    const token = data?.token as string | undefined
+    if (!token) {
+      toastManager.add({
+        title: "Telegram link failed",
+        description: "Missing token in response.",
+        type: "error",
+      })
+      return
+    }
+
+    const url = `https://t.me/tellmewhenimfuckedbot?start=auth_${token}`
     setTelegramUrl(url)
 
     toastManager.add({
       title: "Telegram link ready",
-      description: `Open this link to connect: ${url}`,
+      description: (
+        <span className="flex flex-col gap-1">
+          <a
+            href={url}
+            target="_blank"
+            rel="noreferrer"
+            className="text-white underline"
+          >
+            Open Telegram link
+          </a>
+          <span className="text-muted-foreground">
+            Tap the link above to connect.
+          </span>
+        </span>
+      ),
       type: "success",
     })
-    
-
-
-     
   }
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-12">
