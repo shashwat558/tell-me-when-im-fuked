@@ -1,11 +1,9 @@
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Request
 from typing import Final, Optional
 from telegram.ext import Application
-from jose import JWTError, jwt
 import os
 from dotenv import load_dotenv
-from app.config import telegram_auth_secret, jwt_algorithm
-from app.db import update_user_telegram_link
+from app.db import update_user_telegram_link, get_linked_user_id
 
 load_dotenv()
 
@@ -35,53 +33,52 @@ async def send_text(chat_id: str, text: str):
 async def telegram_webhook_listener(req: Request):
     """This endpoint recieves updates from telegram"""
     data = await req.json()
-    print("[telegram] update:", data)
+    print("[telegram] Incoming Webhook Update:")
+    print("  Headers:", req.headers)
+    print("  Body:", data)
+
     message = data.get("message")
-    if not message:
-        print("[telegram] no message in update")
-        return {"ok": True}
-
-    chat = message.get("chat", {})
-    chat_id = chat.get("id")
-    text = message.get("text", "")
-    if not chat_id or not text:
-        print("[telegram] missing chat_id or text")
-        return {"ok": True}
-
-    if text.startswith("/start"):
-        print("[telegram] /start from chat_id:", chat_id)
-        token = extract_start_token(text)
-        if not token:
-            print("[telegram] missing auth token")
-            await send_text(str(chat_id), "Missing auth token. Please reconnect from the dashboard.")
+    try:
+        if not message:
+            print("[telegram] no message in update")
             return {"ok": True}
 
-        if not telegram_auth_secret:
-            raise HTTPException(status_code=500, detail="TELEGRAM_AUTH_SECRET not configured")
-
-        try:
-            payload = jwt.decode(token, telegram_auth_secret, algorithms=[jwt_algorithm])
-            user_id = payload.get("userId")
-            if not user_id:
-                raise JWTError("missing userId")
-        except JWTError:
-            print("[telegram] invalid token")
-            await send_text(str(chat_id), "Invalid or expired link. Please reconnect from the dashboard.")
+        chat = message.get("chat", {})
+        chat_id = chat.get("id")
+        text = message.get("text", "")
+        if not chat_id or not text:
+            print("[telegram] missing chat_id or text")
             return {"ok": True}
 
-        try:
-            await update_user_telegram_link(user_id=str(user_id), chat_id=str(chat_id))
-        except Exception as exc:
-            print("[telegram] db update failed:", exc)
-            await send_text(str(chat_id), "Could not link right now. Please try again later.")
+        if text.startswith("/start"):
+            print("[telegram] /start from chat_id:", chat_id)
+            token = extract_start_token(text)
+            if not token:
+                print("[telegram] missing auth token")
+                await send_text(str(chat_id), "Missing auth token. Please reconnect from the dashboard.")
+                return {"ok": True}
+
+            try:
+                linked_user_id = await get_linked_user_id(token=token)
+                await update_user_telegram_link(user_id=str(linked_user_id), chat_id=str(chat_id))
+            except RuntimeError as exc:
+                print("[telegram] invalid or expired token:", exc)
+                await send_text(str(chat_id), "Invalid or expired link. Please reconnect from the dashboard.")
+                return {"ok": True}
+            except Exception as exc:
+                print("[telegram] db update failed:", exc)
+                await send_text(str(chat_id), "Could not link right now. Please try again later.")
+                return {"ok": True}
+
+            await send_text(str(chat_id), "Telegram linked ✅ You'll now receive alerts here.")
             return {"ok": True}
 
-        await send_text(str(chat_id), "Telegram linked ✅ You'll now receive alerts here.")
-        return {"ok": True}
+        if text.startswith("/help"):
+            await send_text(str(chat_id), "Commands: /start <auth_token>")
+            return {"ok": True}
 
-    if text.startswith("/help"):
-        await send_text(str(chat_id), "Commands: /start <auth_token>")
         return {"ok": True}
-
-    return {"ok": True}
+    except Exception as e:
+        print(f"[telegram] Unhandled exception in webhook: {e}")
+        return {"ok": False, "error": str(e)}
     
