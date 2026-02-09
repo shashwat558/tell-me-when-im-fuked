@@ -44,7 +44,7 @@ export default function DashboardLayout({
     const alreadyShown = window.localStorage.getItem(toastShownKey) === "true"
 
     if (!isLinked && !alreadyShown) {
-      // Add a small delay to ensure toast provider is mounted
+      
       setTimeout(() => {
         toastManager.add({
           title: "Link your Telegram",
@@ -74,6 +74,21 @@ export default function DashboardLayout({
       router.push("/auth")
     }
   }, [loading, user, router])
+
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" })
+    } catch {
+      toastManager.add({
+        title: "Logout failed",
+        description: "Please try again.",
+        type: "error",
+      })
+    } finally {
+      clearSession()
+      router.push("/auth")
+    }
+  }
 
   return (
     <SidebarProvider>
@@ -109,10 +124,7 @@ export default function DashboardLayout({
               <ThemeToggle />
               <button
                 className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                onClick={() => {
-                  clearSession()
-                  router.push("/auth")
-                }}
+                onClick={handleLogout}
               >
                 <LogOut className="size-4" />
                 <span>Logout</span>
