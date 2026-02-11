@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
+import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   const cookieStore = await cookies()
@@ -17,10 +18,22 @@ export async function GET() {
       email: string;
     };
 
+    const userId = payload.userId ?? payload.id;
+    const dbUser = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        email: true,
+        telegram_chat_id: true,
+        telegram_connected_at: true,
+      },
+    });
+
     return NextResponse.json({
       user: {
-        id: payload.userId ?? payload.id,
-        email: payload.email,
+        id: userId,
+        email: dbUser?.email ?? payload.email,
+        telegramChatId: dbUser?.telegram_chat_id ?? null,
+        telegramConnectedAt: dbUser?.telegram_connected_at ?? null,
       },
     });
   } catch {

@@ -7,6 +7,8 @@ interface SessionState {
   user: {
     id: string;
     email: string;
+    telegramChatId?: string | null;
+    telegramConnectedAt?: string | null;
   } | null;
   loading: boolean;
   hydrate: () => Promise<void>;
@@ -52,3 +54,5 @@ export const useSessionStore = create<SessionState>()(
     }
   )
 );
+
+

@@ -10,10 +10,14 @@ import { User, Shield, Bell, Phone, Mail, Navigation } from "lucide-react"
 import { useSessionStore } from "@/store/session"
 import { cn } from "@/lib/utils"
 import { toastManager } from "@/components/ui/toast"
+import { useEffect } from "react"
 
 export default function ProfilePage() {
   const {user} = useSessionStore();
-  const [telegramUrl, setTelegramUrl] = useState("");
+  const [, setTelegramUrl] = useState("");
+  const isTelegramConnected = Boolean(user?.telegramChatId)
+
+
   const handleTelegramConnect = async () => {
     const userId = user?.id;
     if (!userId) {
@@ -24,7 +28,7 @@ export default function ProfilePage() {
       })
       return
     }
-
+  
     const res = await fetch("/api/telegram/link", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -35,6 +39,16 @@ export default function ProfilePage() {
       toastManager.add({
         title: "Telegram link failed",
         description: "Could not create auth link.",
+        type: "error",
+      })
+      
+      return
+    }
+    if (res.status == 400) {
+      const data = await res.json()
+      toastManager.add({
+        title: "Telegram Already Linked",
+        description: data?.error || "Unknown error.",
         type: "error",
       })
       return
@@ -74,6 +88,8 @@ export default function ProfilePage() {
       type: "success",
     })
   }
+
+  
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-12">
       <div>
@@ -150,8 +166,11 @@ export default function ProfilePage() {
                     <Navigation size={14} /> Telegram Username
                   </label>
                   <div className="flex gap-2">
-                    
-                    <Button variant="default" onClick={handleTelegramConnect} size="sm">Connect</Button>
+                    {isTelegramConnected ? (
+                      <Badge variant="success">Telegram Connected</Badge>
+                    ) : (
+                      <Button variant="default" onClick={handleTelegramConnect} size="sm">Connect</Button>
+                    )}
                   </div>
                 </div>
               </div>
