@@ -28,10 +28,12 @@ model User {
 model Alert {
   id            String @id @default(uuid())
   userId        String
+  alert_medium  AlertMedium
   coin_name     String
   coin_symbol   CoinSymbol
   price_below   Float
   price_above   Float
+  paused        Boolean @default(false)
   user          User  @relation(fields: [userId], references: [id])
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt  
@@ -43,4 +45,9 @@ enum CoinSymbol {
   SOL
   MON
   
+}
+
+enum AlertMedium {
+  TELEGRAM
+  EMAIL
 }
